@@ -63,6 +63,49 @@ async function run() {
       res.json(expenses);
     });
 
+    // 3️ PATCH /expenses/:id → Update an expense
+    app.patch("/expenses/:id", async (req, res) => {
+      const { id } = req.params;
+      const { title, amount, category, date } = req.body;
+
+      // Partial update validation
+      const updateFields = {};
+      if (title !== undefined) {
+        if (title.length < 3) {
+          return res
+            .status(400)
+            .json({ error: "Title must be at least 3 characters long" });
+        }
+        updateFields.title = title;
+      }
+      if (amount !== undefined) {
+        if (typeof amount !== "number" || amount <= 0) {
+          return res
+            .status(400)
+            .json({ error: "Amount must be a number greater than 0" });
+        }
+        updateFields.amount = amount;
+      }
+      if (category !== undefined) updateFields.category = category;
+      if (date !== undefined) {
+        if (isNaN(new Date(date).getTime())) {
+          return res.status(400).json({ error: "Invalid date format" });
+        }
+        updateFields.date = new Date(date);
+      }
+
+      const result = await expensesCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updateFields }
+      );
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: "Expense not found" });
+      }
+
+      res.json({ message: "Expense updated successfully" });
+    });
+
     // Start server
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
