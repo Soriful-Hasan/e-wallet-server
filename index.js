@@ -57,6 +57,12 @@ async function run() {
         .json({ message: "Expense added successfully", id: result.insertedId });
     });
 
+    // 2️ GET /expenses → Fetch all expenses
+    app.get("/expenses", async (req, res) => {
+      const expenses = await expensesCollection.find().toArray();
+      res.json(expenses);
+    });
+
     // Start server
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
