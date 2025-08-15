@@ -29,6 +29,34 @@ async function run() {
 
     console.log("Connected to MongoDB");
 
+    // 1️ POST /expenses → Add a new expense
+    app.post("/expenses", async (req, res) => {
+      const { title, amount, category, date } = req.body;
+
+      // Validation
+      if (!title || title.length < 3) {
+        return res.status(400).json({
+          error: "Title is required and must be at least 3 characters long",
+        });
+      }
+      if (amount === undefined || typeof amount !== "number" || amount <= 0) {
+        return res.status(400).json({
+          error: "Amount is required and must be a number greater than 0",
+        });
+      }
+      if (!date || isNaN(new Date(date).getTime())) {
+        return res
+          .status(400)
+          .json({ error: "Date is required and must be a valid date" });
+      }
+
+      const newExpense = { title, amount, category, date: new Date(date) };
+      const result = await expensesCollection.insertOne(newExpense);
+      res
+        .status(201)
+        .json({ message: "Expense added successfully", id: result.insertedId });
+    });
+
     // Start server
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
