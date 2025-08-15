@@ -106,6 +106,34 @@ async function run() {
       res.json({ message: "Expense updated successfully" });
     });
 
+    // 4️⃣ DELETE /expenses/:id → Delete an expense
+    app.delete("/expenses/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await expensesCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      if (result.deletedCount === 0) {
+        return res.status(404).json({ error: "Expense not found" });
+      }
+
+      res.json({ message: "Expense deleted successfully" });
+    });
+
+    // 4️⃣ DELETE /expenses/:id → Delete an expense
+    app.delete("/expenses/:id", async (req, res) => {
+      const { id } = req.params;
+      const result = await expensesCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      if (result.deletedCount === 0) {
+        return res.status(404).json({ error: "Expense not found" });
+      }
+
+      res.json({ message: "Expense deleted successfully" });
+    });
+
     // Start server
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
